@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation Test</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+    <style>
+        /* Basic button styling */
+        #getLocationBtn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            margin-left: 45%;
+            margin-top: 20%;
+        }
+
+        #getLocationBtn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Position Google icon inside button */
+        #getLocationBtn .material-icons {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <button id="getLocationBtn">
+        <i class="material-icons">location_on</i>
+        Get My Location
+    </button>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            $('#getLocationBtn').on('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var latitude = position.coords.latitude;
+                        var longitude = position.coords.longitude;
+
+                        Swal.fire({
+                            title: 'Your Coordinates',
+                            text: 'Latitude: ' + latitude + ', Longitude: ' + longitude,
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'Next',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                getAddressFromCoords(latitude, longitude);
+                            }
+                        });
+                    }, function(error) {
+                        console.error('Error getting current location:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Error getting current location: ' + error.message
+                        });
+                    });
+                } else {
+                    console.error('Geolocation is not supported by this browser.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Geolocation is not supported by this browser.'
+                    });
+                }
+            });
+
+            function getAddressFromCoords(latitude, longitude) {
+                var apiUrl = 'proxy.php?lat=' + latitude + '&lng=' + longitude;
+
+                fetch(apiUrl)
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        if (data.results && data.results.length > 0) {
+                            var formattedAddress = data.results[0].formatted_address;
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Your Location',
+                                text: formattedAddress
+                            });
+                        } else {
+                            handleNoAddressFound(latitude, longitude);
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error fetching address:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Error fetching address: ' + error.message
+                        });
+                    });
+            }
+
+            function handleNoAddressFound(latitude, longitude) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'No address found for the given coordinates. Trying to fetch the nearest possible address within a 10km radius...'
+                });
+
+                // Adjusting latitude and longitude to search within a 10km radius
+                var searchRadius = 0.1; // 10km ~ 0.1 degrees
+                var apiUrl = 'proxy.php?lat=' + (latitude + searchRadius) + '&lng=' + (longitude + searchRadius);
+
+                fetch(apiUrl)
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        if (data.results && data.results.length > 0) {
+                            var formattedAddress = data.results[0].formatted_address;
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Nearest Possible Location',
+                                text: formattedAddress
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Still no address found for the given coordinates.'
+                            });
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error fetching address:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Error fetching address: ' + error.message
+                        });
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
