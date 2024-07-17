@@ -115,5 +115,3 @@ Developed by **Mayank Chawdahri (AKA TheRealBo$$)**, a passionate developer with
 - 📦 **Docker Support**: Provide Docker support for easy deployment and scalability.
 
 ---
-
-Feel free to customize the content as per your project requirements. This README should give potential users a clear understanding of the capabilities and usage of your geocoding script while providing a professional and attractive presentation on GitHub.
