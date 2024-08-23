@@ -5,7 +5,7 @@
 
 This Geocoding Script is a powerful tool that allows you to convert addresses into geographic coordinates and vice versa. It utilizes the DistanceMatrix.ai API for accurate and efficient geocoding services. Whether you're building a location-based application or need geocoding for data analysis, this script has got you covered! Developed with modern features and user-friendly functionalities, it is an ideal choice for developers and data enthusiasts.
 
-Sure, here's a detailed explanation of each feature based on the provided geocoding script:
+
 
 ## Features
 
